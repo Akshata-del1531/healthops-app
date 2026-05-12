@@ -10,14 +10,28 @@ pipeline {
 
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/YOUR_USERNAME/healthops-app.git'
+                git url: 'https://github.com/Akshata-del1531/healthops-app.git', branch: 'main'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${REGISTRY}/${IMAGE_NAME}")
+                    sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
+                }
+            }
+        }
+
+        stage('Login to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerhub-credentials',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                    }
                 }
             }
         }
@@ -25,9 +39,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', 'dockerhub-credentials') {
-                        docker.image("${REGISTRY}/${IMAGE_NAME}").push('latest')
-                    }
+                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
                 }
             }
         }
