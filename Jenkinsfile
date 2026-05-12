@@ -16,31 +16,25 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t ${REGISTRY}/${IMAGE_NAME}:latest ."
-                }
+                bat "docker build -t %REGISTRY%/%IMAGE_NAME%:latest ."
             }
         }
 
         stage('Login to DockerHub') {
             steps {
-                script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
-                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-                    }
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
                 }
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                script {
-                    sh "docker push ${REGISTRY}/${IMAGE_NAME}:latest"
-                }
+                bat "docker push %REGISTRY%/%IMAGE_NAME%:latest"
             }
         }
     }
