@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: healthops-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: healthops-app
+  template:
+    metadata:
+      labels:
+        app: healthops-app
+    spec:
+      containers:
+      - name: healthops-app
+        image: akshata234/healthops-app:latest
+        ports:
+        - containerPort: 5000
